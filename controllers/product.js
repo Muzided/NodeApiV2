@@ -4,16 +4,16 @@ const getAllProducts = async (req, res) => {
     const { company, name, featured, sort, select, page, limit } = req.query;
 
     const queryObject = {}
-    let apiData = Product.find(queryObject);
+
     // console.log('Await', apiData);
     if (company) {
         queryObject.company = company;
     }
     if (featured) {
-        queryObject.name = featured;
+        queryObject.featured = featured;
     }
     if (name) {
-        queryObject.name = { $regex: name, $options: " " };
+        queryObject.name = { $regex: name, $options: "i" };
     }
     if (sort) {
         // let sortFix = sort.replace(",", " ");
@@ -40,6 +40,9 @@ const getAllProducts = async (req, res) => {
         console.log("skip", skip);
         apiData = apiData.skip(skip).limit(limitt);
     }
+    let apiData = Product.find(queryObject);
+
+
     const Products = await apiData;
 
     res.status(200).json({ Products })
@@ -50,4 +53,10 @@ const getAllProductsTesting = async (req, res) => {
     res.status(200).json(Products);
 }
 
-module.exports = { getAllProducts, getAllProductsTesting };
+const addProduct = async (req, res) => {
+    console.log('ola', req.body);
+    res.send(req.body);
+}
+
+
+module.exports = { getAllProducts, getAllProductsTesting, addProduct };
