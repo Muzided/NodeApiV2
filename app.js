@@ -6,11 +6,13 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const product_routes = require("./routes/product");
+const user_routes = require("./routes/user")
 
 dotenv.config();
 
 app.use(bodyParser.json());
 app.use('/api/product', product_routes);
+app.use('/api/user', user_routes)
 
 app.get("/", (req, res) => {
     res.send("hi, I am live");
