@@ -1,0 +1,60 @@
+[
+    {
+        "name": "iphone",
+        "price": 154,
+        "featured": true,
+        "company": "apple"
+    },
+    {
+        "name": "dell mouse",
+        "price": 172,
+        "featured": true,
+        "company": "dell"
+    },
+    {
+        "name": "note10",
+        "price": 448,
+        "company": "samsung"
+    },
+    {
+        "name": "samsung20",
+        "price": 980,
+        "company": "samsung"
+    },
+    {
+        "name": "iphoneSe",
+        "price": 976,
+        "company": "apple"
+    },
+    {
+        "name": "dell laptop",
+        "price": 732,
+        "company": "dell"
+    },
+    {
+        "name": "dell gaming",
+        "price": 248,
+        "company": "dell"
+    },
+    {
+        "name": "iphone14",
+        "price": 937,
+        "company": "apple"
+    },
+    {
+        "name": "note10",
+        "price": 775,
+        "feature": true,
+        "company": "samsung"
+    },
+    {
+        "name": "watch",
+        "price": 102,
+        "company": "apple"
+    },
+    {
+        "name": "iphone12",
+        "price": 112,
+        "company": "apple"
+    }
+]
