@@ -1,5 +1,6 @@
 const Product = require("../models/product");
-const getAllProducts = async (req, res) => {
+const asyncHandler = require("express-async-handler");
+const getAllProducts = asyncHandler(async (req, res) => {
 
     const { company, name, featured, sort, select, page, limit } = req.query;
 
@@ -40,15 +41,15 @@ const getAllProducts = async (req, res) => {
         console.log("skip", skip);
         apiData = apiData.skip(skip).limit(limitt);
     }
-    let apiData = Product.find(queryObject);
+    let apiData = Product.find({ user_id: req.user.id });
 
 
     const Products = await apiData;
 
     res.status(200).json({ Products })
-}
+});
 
-const getAllProductsTesting = async (req, res) => {
+const getAllProductsTesting = asyncHandler(async (req, res) => {
     const Products = await Product.aggregate([
         {
             $lookup: {
@@ -61,7 +62,7 @@ const getAllProductsTesting = async (req, res) => {
         }
     ]);
     res.status(200).json(Products);
-}
+});
 
 // const addProduct = async (req, res) => {
 //     try {
@@ -73,40 +74,52 @@ const getAllProductsTesting = async (req, res) => {
 
 //     }
 // }
-const addProduct = async (req, res) => {
+const addProduct = asyncHandler(async (req, res) => {
     try {
-        const products = req.body;
+        const { name, price, feature, rating, company } = req.body;
 
-        for (const product of products) {
-            const newProduct = new Product(product);
-            const validationResult = newProduct.validateSync();
-            if (validationResult) {
-                const errors = Object.values(validationResult.errors).map(
-                    (error) => error.message
-                );
-                return res.status(400).json({ errors });
-            }
-        }
+        // for (const product of products) {
+        //     const newProduct = new Product(product);
+        //     const validationResult = newProduct.validateSync();
+        //     if (validationResult) {
+        //         const errors = Object.values(validationResult.errors).map(
+        //             (error) => error.message
+        //         );
+        //         return res.status(400).json({ errors });
+        //     }
+        // }
 
-        const createdProducts = await Product.create(products);
+        const createdProducts = await Product.create({
+            name, price, feature, rating, company, user_id: req.user.id
+        });
         res.status(200).json({ products: createdProducts });
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ message: error.message });
     }
-};
+});
 
 
-const updateProduct = async (req, res) => {
+const updateProduct = asyncHandler(async (req, res) => {
     try {
 
         //const { id } = req.query;
         const { id } = req.body;
         console.log(id)
-        const product = await Product.findByIdAndUpdate(id, req.body);
+        const product = await Product.findById(id);
         if (!product) {
-            return res.status(404).send({ message: `Connot find Product with ${id}` })
+            res.status(404);
+            throw new Error("Product not found");
         }
+        if (product.user_id.toString() !== req.user.id.toString()) {
+            res.status(403);
+            throw new Error("Access denied to update other user products");
+        }
+        const updateProduct = await Product.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
 
         res.status(200).send({ message: "updatedProduct" })
     } catch (error) {
@@ -114,22 +127,29 @@ const updateProduct = async (req, res) => {
         res.status(500).json({ message: error.message });
 
     }
-}
+});
 
-const deleteProduct = async (req, res) => {
+const deleteProduct = asyncHandler(async (req, res) => {
     try {
         const { id } = req.query;
-        const product = await Product.findByIdAndDelete(id);
+        const product = await Product.findById(id);
         if (!product) {
-            return res.status(404).send({ message: `Cannot find product by id ${id}` })
+            res.status(404);
+            throw new Error("Product not found")
+
         }
+        if (product.user_id.toString() !== req.user.id.toString()) {
+            res.status(403);
+            throw new Error("Access denied to update other user products");
+        }
+        await Product.deleteOne({ _id: id });
         res.status(200).send({ message: "Deleted" });
 
     } catch (error) {
         res.status(500).send({ message: error.message });
 
     }
-}
+});
 
 
 

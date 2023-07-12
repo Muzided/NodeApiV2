@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { getAllProducts, getAllProductsTesting, addProduct, updateProduct, deleteProduct } = require("../controllers/product")
-
+const { getAllProducts, getAllProductsTesting, addProduct, updateProduct, deleteProduct } = require("../controllers/product");
+const validateToken = require("../middleware/validateTokenHandler");
+router.use(validateToken);
 router.route("/").get(getAllProducts);
 router.route("/testing").get(getAllProductsTesting);
 router.route("/addProduct").post(addProduct);
