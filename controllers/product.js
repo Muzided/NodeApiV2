@@ -78,21 +78,11 @@ const addProduct = asyncHandler(async (req, res) => {
     try {
         const { name, price, feature, rating, company } = req.body;
 
-        // for (const product of products) {
-        //     const newProduct = new Product(product);
-        //     const validationResult = newProduct.validateSync();
-        //     if (validationResult) {
-        //         const errors = Object.values(validationResult.errors).map(
-        //             (error) => error.message
-        //         );
-        //         return res.status(400).json({ errors });
-        //     }
-        // }
 
         const createdProducts = await Product.create({
             name, price, feature, rating, company, user_id: req.user.id
         });
-        res.status(200).json({ products: createdProducts });
+        res.status(200).json({ products: createdProducts._id });
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ message: error.message });
@@ -105,6 +95,9 @@ const updateProduct = asyncHandler(async (req, res) => {
 
         //const { id } = req.query;
         const { id } = req.body;
+
+
+
         console.log(id)
         const product = await Product.findById(id);
         if (!product) {
@@ -124,7 +117,7 @@ const updateProduct = asyncHandler(async (req, res) => {
         res.status(200).send({ message: "updatedProduct" })
     } catch (error) {
         console.log("error", error.message);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message, data: { updateProduct } });
 
     }
 });
@@ -151,6 +144,48 @@ const deleteProduct = asyncHandler(async (req, res) => {
     }
 });
 
+const updateImage = asyncHandler(async (req, res) => {
+    try {
+        const { id } = req.query;
+        const file = req.file;
+
+        if (!file) {
+            res.status(400)
+            throw new Error('No file uploaded');
+
+        }
+        const url = `http://localhost:5000/public/images/${file.filename}`;
+        const product = await Product.findById(id);
+        product.image = url;
+        await product.save();
+        return res.status(200).json({ success: true, Message: "Sucessfully Done", data: { imageUrl: url } });
 
 
-module.exports = { getAllProducts, getAllProductsTesting, addProduct, updateProduct, deleteProduct };
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: error.message });
+    }
+});
+const UpdateImage = asyncHandler(async (req, res, next) => {
+    try {
+        const file = req.file;
+        const id = req.userId;
+        if (!file) {
+            res.status(400)
+            throw new Error('No file uploaded.');
+
+        }
+        const url = `http://localhost:5000/public/images/${file.filename}`;
+
+        return res.status(200).json({ success: true, Message: "Sucessfully Don", data: { imageUrl: url } });
+    }
+    catch (e) {
+        console.log('error', e)
+        return res.status(e.status || 500).json({ Suceess: false, msg: e.message, data: {} })
+    }
+});
+
+
+
+module.exports = { getAllProducts, getAllProductsTesting, addProduct, updateProduct, deleteProduct, UpdateImage, updateImage };

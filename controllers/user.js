@@ -2,6 +2,7 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv');
+const fs = require('fs');
 const asyncHandler = require("express-async-handler");
 
 dotenv.config();
@@ -41,12 +42,12 @@ const registerUser = asyncHandler(async (req, res) => {
     });
     console.log(`User Created Successfully${user}`);
     if (user) {
-        res.status(201).json({ _id: user.id, email: user.email })
+        return res.status(201).json({ message: "User Registered successfully" })
     } else {
         res.status(400)
         throw new Error("User data is not valid")
     }
-    res.json({ message: "Register the user" });
+
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -82,5 +83,29 @@ const loginUser = asyncHandler(async (req, res) => {
 const currentUser = asyncHandler(async (req, res) => {
     res.status(200).json(req.user);
 })
+
+
+
+UpdateImage=async(req,res,next)=>{
+    try
+    {
+        const file = req.file;
+        const id = req.userId;
+        if (!file) {
+            res.status(400).send('No file uploaded.');
+            return;
+        }
+        const url = `${config.react_app_server_url}/public/images/${file.filename}`;
+        const user = await userModel.findById(id);
+        user.imageUrl = url;
+        await user.save();
+        return res.status(200).json({success: true, Message: "Sucessfully Don", data:{imageUrl:url}});
+    }
+    catch(e)
+    {
+        console.log('error', e)
+        return res.status(e.status || 500).json({ Suceess: false, msg: e.message, data: {} })
+    }
+}
 
 module.exports = { addUser, registerUser, loginUser, currentUser };

@@ -23,7 +23,7 @@ const productSchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        required: [true, "Picture Necessary"]
+
     },
     createdAt: {
         type: Date,
